@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { getFeaturedEvents } from "../../dummy-data";
-import EventList from "../../components/EventList";
+import EventList from "../../components/Events/EventList";
 
 export default function AllEventsPage() {
   const featuredEvents = getFeaturedEvents();

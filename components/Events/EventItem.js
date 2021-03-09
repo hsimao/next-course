@@ -1,7 +1,7 @@
-import AppButton from "./AppButton";
-import DateIcon from "./icons/date-icon";
-import AddressIcon from "./icons/address-icon";
-import ArrowRightIcon from "./icons/arrow-right-icon";
+import AppButton from "../UI/AppButton";
+import DateIcon from "../Icons/DateIcon";
+import AddressIcon from "../Icons/AddressIcon";
+import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import classes from "./EventItem.module.css";
 
 export default function EventList(props) {
