@@ -11,7 +11,6 @@ export default function AllEventsPage() {
         <title>All Events Page</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1>All Events</h1>
       <EventList items={featuredEvents} />
     </div>
   );
