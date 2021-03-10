@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import Link from "next/link";
 
 // server side render 自動產生 html + json 的頁面
 export async function getStaticProps() {
@@ -8,6 +9,19 @@ export async function getStaticProps() {
   const data = JSON.parse(jsonData);
 
   console.log("Re Generating...");
+
+  if (!data) {
+    return {
+      redirect: {
+        destination: "/no-data"
+      }
+    };
+  }
+
+  if (!data.products) {
+    // 導到 404 頁面
+    return { notFound: true };
+  }
 
   return {
     props: {
@@ -24,7 +38,9 @@ export default function HomePage(props) {
   return (
     <ul>
       {products.map((product) => (
-        <p key={product.id}>{product.title}</p>
+        <li key={product.id}>
+          <Link href={`/${product.id}`}>{product.title}</Link>
+        </li>
       ))}
     </ul>
   );
