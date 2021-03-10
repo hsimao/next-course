@@ -7,12 +7,14 @@ export async function getStaticProps() {
   const jsonData = await fs.readFile(filePath);
   const data = JSON.parse(jsonData);
 
-  console.log("in server side");
+  console.log("Re Generating...");
 
   return {
     props: {
       products: data.products
-    }
+    },
+    // 每次使用者請求打過來時, 嘗試重新生成靜態 HTML, 10 內秒最多重新生成一次
+    revalidate: 10
   };
 }
 
