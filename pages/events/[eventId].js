@@ -3,14 +3,10 @@ import EventSummary from "../../components/EventDetail/EventSummary";
 import EventLogistics from "../../components/EventDetail/EventLogistics";
 import EventContent from "../../components/EventDetail/EventContent";
 import ErrorAlert from "../../components/UI/ErrorAlert";
-import { getEventById } from "../../dummy-data";
-import { useRouter } from "next/router";
+import { getEventById, getFeaturedEvents } from "../../helpers/api-util";
 
-export default function EventDetailPage() {
-  const router = useRouter();
-
-  const eventId = router.query.eventId;
-  const event = getEventById(eventId);
+export default function EventDetailPage(props) {
+  const event = props.selectedEvent;
 
   if (!event) {
     return (
@@ -40,4 +36,29 @@ export default function EventDetailPage() {
       </EventContent>
     </div>
   );
+}
+
+export async function getStaticProps(content) {
+  const eventId = content.params.eventId;
+  const event = await getEventById(eventId);
+
+  return {
+    props: {
+      selectedEvent: event
+    },
+    revalidate: 30 //  每隔 30 秒有人請求時才會重新產生靜態檔案
+  };
+}
+
+export async function getStaticPaths() {
+  // 只抓取有加入我的最愛的 events 來預產生靜態檔案
+  const events = await getFeaturedEvents();
+  const paths = events.map(({ id }) => ({
+    params: { eventId: id }
+  }));
+
+  return {
+    paths,
+    fallback: true
+  };
 }

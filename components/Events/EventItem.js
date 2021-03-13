@@ -4,7 +4,7 @@ import AddressIcon from "../Icons/AddressIcon";
 import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import classes from "./EventItem.module.css";
 
-export default function EventList(props) {
+export default function EventItem(props) {
   const {
     item: { title, image, date, location, id }
   } = props;

@@ -1,7 +1,8 @@
 import Head from "next/head";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { getFilteredEvents } from "../../dummy-data";
+import useSWR from "swr";
+import { formatEventsData } from "../../helpers/api-util";
 import AppButton from "../../components/UI/AppButton";
 import ErrorAlert from "../../components/UI/ErrorAlert";
 import EventList from "../../components/Events/EventList";
@@ -18,46 +19,55 @@ const validateFilterData = ({ year, month }) => {
   );
 };
 
-export default function FilteredEventsPage() {
-  const router = useRouter();
-  const filterData = router.query.slug;
+const renderError = (text) => (
+  <Fragment>
+    <ErrorAlert>
+      <p>{text}</p>
+    </ErrorAlert>
+    <div className="center">
+      <AppButton link="/events">Show All Events</AppButton>
+    </div>
+  </Fragment>
+);
 
-  if (!filterData) {
+export default function FilteredEventsPage() {
+  const [loadedEvents, setLoadedEvents] = useState();
+  const router = useRouter();
+
+  const { data, error } = useSWR(
+    "https://react-course-ddef7-default-rtdb.firebaseio.com/events.json"
+  );
+
+  useEffect(() => {
+    if (data) {
+      setLoadedEvents(formatEventsData(data));
+    }
+  }, [data]);
+
+  if (!loadedEvents) {
     return <p className="center">Loading...</p>;
   }
 
+  const filterData = router.query.slug;
   const [year, month] = filterData;
   const numYear = +year;
   const numMonth = +month;
-
   const dataInvalid = validateFilterData({ year: numYear, month: numMonth });
 
-  if (dataInvalid) {
-    return (
-      <Fragment>
-        <ErrorAlert>
-          <p>Invalid filter. Please adjust your values!</p>
-        </ErrorAlert>
-        <div className="center">
-          <AppButton link="/events">Show All Events</AppButton>
-        </div>
-      </Fragment>
-    );
+  if (dataInvalid || error) {
+    return renderError("Invalid filter. Please adjust your values!");
   }
 
-  const filteredEvents = getFilteredEvents({ year: numYear, month: numMonth });
-
-  if (!filteredEvents || filteredEvents.length === 0) {
+  const filteredEvents = loadedEvents.filter((event) => {
+    const eventDate = new Date(event.date);
     return (
-      <Fragment>
-        <ErrorAlert>
-          <p>No events found for the chosen filter!</p>
-        </ErrorAlert>
-        <div className="center">
-          <AppButton link="/events">Show All Events</AppButton>
-        </div>
-      </Fragment>
+      eventDate.getFullYear() === numYear &&
+      eventDate.getMonth() === numMonth - 1
     );
+  });
+
+  if (!filteredEvents || !filteredEvents.length) {
+    return renderError("No events found for the chosen filter!!");
   }
 
   const date = new Date(numYear, numMonth - 1);
